@@ -1,4 +1,5 @@
 from motor.motor_asyncio import AsyncIOMotorClient
+from app.models.demo import Task
 from beanie import init_beanie
 
 client: AsyncIOMotorClient
@@ -14,7 +15,7 @@ async def connect_to_mongo(config):
     client = AsyncIOMotorClient(f"mongodb://{username}:{password}@{host}:{port}/?authSource=admin")
     await init_beanie(
         database=client.majordomus,
-        document_models=[],
+        document_models=[Task],
     )
 
 
