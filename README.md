@@ -9,6 +9,7 @@ python -m venv venv
 source venv/bin/activate
 pip install --upgrade pip
 pip install -r requirements.txt
+pip install -r requirements.dev.txt
 ```
 
 2. Configure environment variables
@@ -27,8 +28,8 @@ python main.py
 
 ### Database Integration (MongoDB)
 
-- [ ] Setup MongoDB
-- [ ] Choose ODM (Beanie or Tortoise)
+- [x] Add Docker for MongoDB
+- [x] Setup MongoDB
 - [ ] Create database models
 - [ ] Get next task from the database
 

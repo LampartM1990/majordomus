@@ -19,7 +19,16 @@ class ProjectPaths:
     app = root / "app"
 
 
+class ProjectDB:
+    user = validate_env_var("MONGO_ROOT_USER")
+    password = validate_env_var("MONGO_ROOT_PASS")
+    port = validate_env_var("MONGO_PORT")
+    host = 'mongo'
+
+
 class Config:
     environment = validate_env_var("ENVIRONMENT")
+    debug = validate_env_var("DEBUG").lower() == "true"
     path = ProjectPaths()
     api = ApiConfig()
+    db = ProjectDB()
