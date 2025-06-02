@@ -1,9 +1,40 @@
 import json
 import os
 from datetime import datetime, timedelta
+from plyer import notification
 
 TASKS_FILE = 'tasks.json'
 STATUSES = ['čekající', 'dokončený', 'neúspěšný']
+
+def send_desktop_notifications(tasks):
+    today = datetime.today().date()
+    today_tasks = []
+    overdue_tasks = []
+
+    for task in tasks:
+        deadline_str = task.get('deadline', '')
+        try:
+            deadline = datetime.strptime(deadline_str, "%Y-%m-%d").date()
+            if deadline == today:
+                today_tasks.append(task)
+            elif deadline < today:
+                overdue_tasks.append(task)
+        except ValueError:
+            continue
+
+    if today_tasks:
+        notification.notify(
+            title="Úkoly pro dnešek",
+            message=f"Máš {len(today_tasks)} úkol(ů), které mají termín dnes.",
+            timeout=10
+        )
+
+    if overdue_tasks:
+        notification.notify(
+            title="Zmeškané úkoly",
+            message=f"{len(overdue_tasks)} úkol(ů) je po termínu!",
+            timeout=10
+        )
 
 def load_tasks():
     if not os.path.exists(TASKS_FILE):
@@ -11,14 +42,17 @@ def load_tasks():
     with open(TASKS_FILE, 'r', encoding='utf-8') as f:
         return json.load(f)
 
+
 def save_tasks(tasks):
     with open(TASKS_FILE, 'w', encoding='utf-8') as f:
         json.dump(tasks, f, ensure_ascii=False, indent=2)
+
 
 def generate_id(tasks):
     if tasks:
         return max(task['id'] for task in tasks) + 1
     return 1
+
 
 def create_task(tasks):
     title = input("Zadej název úkolu: ")
@@ -33,12 +67,15 @@ def create_task(tasks):
     save_tasks(tasks)
     print("Úkol byl přidán.")
 
+
+
 def list_tasks(tasks):
     if not tasks:
         print("Žádné úkoly.")
         return
     for task in tasks:
         print(f"[{task['id']}] {task['title']} – {task['status']} – termín: {task.get('deadline', 'neuveden')}")
+
 
 def update_task(tasks):
     task_id = int(input("Zadej ID úkolu k úpravě: "))
@@ -53,15 +90,18 @@ def update_task(tasks):
             return
     print("Úkol s tímto ID nebyl nalezen.")
 
+
+
 def delete_task(tasks):
     task_id = int(input("Zadej ID úkolu ke smazání: "))
     for task in tasks:
         if task['id'] == task_id:
             tasks.remove(task)
             save_tasks(tasks)
-            print("Úkol byl smazán.")
+            print("🗑️ Úkol byl smazán.")
             return
     print("Úkol s tímto ID nebyl nalezen.")
+
 
 def change_status(tasks):
     task_id = int(input("Zadej ID úkolu ke změně stavu: "))
@@ -99,8 +139,11 @@ def list_upcoming_tasks(tasks):
     if not found:
         print("Žádné blížící se úkoly.")
 
+
 def menu():
     tasks = load_tasks()
+    send_desktop_notifications(tasks)  
+    show_notifications(tasks) 
     while True:
         print("\n Správce úkolů")
         print("1. Přidat úkol")
@@ -110,6 +153,7 @@ def menu():
         print("5. Změnit stav úkolu")
         print("6. Zobrazit úkoly s blízkým termínem")
         print("7. Konec")
+
 
         choice = input("Zadej volbu: ")
 
@@ -129,5 +173,7 @@ def menu():
             print("Ukončuji program.")
             break
 
+
 if __name__ == "__main__":
     menu()
+
